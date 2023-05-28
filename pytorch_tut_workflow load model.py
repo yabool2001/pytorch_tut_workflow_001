@@ -3,13 +3,12 @@
 # A PyTorch model that learns the pattern of the straight line and matches it. 
 # pytorch_tut_workflow v2.1.py
 
-from pathlib import Path
+import time
 import torch
 from torch import nn
 import matplotlib.pyplot as plt
 
-# MODEL_SAVE_PATH = "saved_model/pytorch_tut_workflow.pth"
-model_saved_path = Path ( "saved_model/pytorch_tut_workflow.pth" )
+MODEL_SAVE_PATH = "saved_model/pytorch_tut_workflow.pth"
 
 
 def get_model_parameters ( model , comment ) :
@@ -109,12 +108,9 @@ torch.manual_seed ( 42 )
 model_0 = LinearRegressionModel ()
 loss_fn = nn.L1Loss () # May be also called Cost Function or Criterion in different areas.
 
-
-if model_saved_path.is_file () :
-    model_0.load_state_dict ( torch.load ( f = model_saved_path ) ) # Załaduj istniejący model
-else :
-    train_model ( model_0 , X_train , loss_fn ) # Trenuj model, bo nie ma zapisanego
+# Create the loss function
+train_model ( model_0 , X_train , loss_fn )
 y_pred = test_model  ( model_0 , X_test , loss_fn )
-print (f"Saving model to: {model_saved_path}")
-torch.save ( obj = model_0.state_dict () , f = model_saved_path )
+print (f"Saving model to: {MODEL_SAVE_PATH}")
+torch.save ( obj = model_0.state_dict () , f = MODEL_SAVE_PATH )
 plot_predictions ( X_train , y_test , X_test , y_test , y_pred )
