@@ -41,26 +41,27 @@ X_train = torch.tensor ( [ [0.1] , [0.2] , [0.3] ] )
 # X_train = torch.tensor ( [ 0.1 , 0.2 , 0.3 ] )
 # Create labels:
 y_train = weight * X_train + bias
-print ( f"X_train:\n{X_train}\ny_train:\n{y_train}")
+# print ( f"X_train:\n{X_train}\ny_train:\n{y_train}")
 
 # Create test parameters:
 X_test = torch.tensor ( [ [0.6] , [0.7] , [0.8] ] )
 # X_test = torch.tensor ( [ 0.6 , 0.7 , 0.8 ] )
 # Create labels:
 y_test = weight * X_test + bias
-print ( f"X_test:\n{X_test[:5]}\ny_test:\n{y_test[:5]}")
+# print ( f"X_test:\n{X_test[:5]}\ny_test:\n{y_test[:5]}")
 
-def test_model ( model , X_test ) :
+def test_model ( model , X_test , loss_fn ) :
+    model.eval ()
     with torch.inference_mode () :
-        y_preds = model ( X_test )
-    print ( f"y_test:\n{y_test[:5]}\ny_preds:\n{y_preds[:5]}")
-    return y_preds
+        y_pred = model ( X_test )
+    test_loss = loss_fn ( y_pred , y_test )
+    print ( test_loss )
+    return y_pred
 
-def train_model ( model , X_train ) :
-    get_model_parameters ( model , 'before train' )
-    loss_fn = nn.L1Loss () # May be also called Cost Function or Criterion in different areas.
-    optimizer = torch.optim.SGD ( params = model.parameters () , lr = 0.01 )
-    epochs = 10000
+def train_model ( model , X_train , loss_fn ) :
+    # get_model_parameters ( model , 'before train' )
+    optimizer = torch.optim.SGD ( params = model.parameters () , lr = 0.001 )
+    epochs = 100000
     # Create empty loss lists to track values
     train_loss_values = []
     train_epochs = []
@@ -74,10 +75,9 @@ def train_model ( model , X_train ) :
         optimizer.step ()
         train_epochs.append ( epoch )
         train_loss_values.append ( loss.detach () )
-        if epoch % ( round ( epochs / 10 ) ) == 0 :
+        # if epoch % ( round ( epochs / 10 ) ) == 0 :
         # if epoch == epochs - 1 :
-            get_model_parameters ( model , ' after train' )
-    model.eval ()
+            # get_model_parameters ( model , ' after train' )
     plt_visualization ( train_epochs , train_loss_values )
 
 
@@ -104,9 +104,9 @@ torch.manual_seed ( 42 )
 
 # Create an instance of the model (this is a subclass of nn.Module that contains nn.Parameter(s))
 model_0 = LinearRegressionModel ()
-
+loss_fn = nn.L1Loss () # May be also called Cost Function or Criterion in different areas.
 
 # Create the loss function
-train_model ( model_0 , X_train )
-y_pred = test_model  ( model_0 , X_test )
+train_model ( model_0 , X_train , loss_fn )
+y_pred = test_model  ( model_0 , X_test , loss_fn )
 plot_predictions ( X_train , y_test , X_test , y_test , y_pred )
