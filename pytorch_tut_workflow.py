@@ -8,6 +8,8 @@ import torch
 from torch import nn
 import matplotlib.pyplot as plt
 
+MODEL_SAVE_PATH = "saved_model/pytorch_tut_workflow.pth"
+
 
 def get_model_parameters ( model , comment ) :
     print ( f"{model._get_name()} model parameters {comment}: bias: {model.bias[0]:4.4f}, weights: {model.weights[0]:4.4f}" )
@@ -109,4 +111,6 @@ loss_fn = nn.L1Loss () # May be also called Cost Function or Criterion in differ
 # Create the loss function
 train_model ( model_0 , X_train , loss_fn )
 y_pred = test_model  ( model_0 , X_test , loss_fn )
+print (f"Saving model to: {MODEL_SAVE_PATH}")
+torch.save ( obj = model_0.state_dict () , f = MODEL_SAVE_PATH )
 plot_predictions ( X_train , y_test , X_test , y_test , y_pred )
