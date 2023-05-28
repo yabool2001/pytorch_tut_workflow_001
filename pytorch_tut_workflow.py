@@ -1,14 +1,13 @@
 # 2023.05.26
 # Source: https://www.learnpytorch.io/01_pytorch_workflow/
 # A PyTorch model that learns the pattern of the straight line and matches it. 
-# pytorch_tut_workflow v2.1.py
+# Dependencies: saved_model/pytorch_tut_workflow.pth
 
 from pathlib import Path
 import torch
 from torch import nn
 import matplotlib.pyplot as plt
 
-# MODEL_SAVE_PATH = "saved_model/pytorch_tut_workflow.pth"
 model_saved_path = Path ( "saved_model/pytorch_tut_workflow.pth" )
 
 
