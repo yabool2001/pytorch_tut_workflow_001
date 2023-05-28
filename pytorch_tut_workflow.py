@@ -12,35 +12,12 @@ import matplotlib.pyplot as plt
 def get_model_parameters ( model , comment ) :
     print ( f"{model._get_name()} model parameters {comment}: bias: {model.bias[0]:4.4f}, weights: {model.weights[0]:4.4f}" )
 
-def train_model ( model , X_train ) :
-    get_model_parameters ( model , 'before train' )
-    loss_fn = nn.L1Loss ()
-    optimizer = torch.optim.SGD ( params = model.parameters () , lr = 0.01 )
-    epochs = 10000
-    # Create empty loss lists to track values
-    train_loss_values = []
-    train_epochs = []
-    for epoch in range ( epochs ) :
-        model.train ()
-        y_pred = model ( X_train ) # Forward pass on train data
-        loss = loss_fn ( y_pred , y_train )
-        optimizer.zero_grad ()
-        loss.backward ()
-        optimizer.step ()
-        train_epochs.append ( epoch )
-        train_loss_values.append ( loss.detach () )
-        if epoch % ( epochs / 10 ) == 0 :
-        # if epoch == epochs - 1 :
-            get_model_parameters ( model , ' after train' )
-    plt_visualization ( train_epochs , train_loss_values )
-
 def plt_visualization ( x , y ) :
     #plt.xlim ( -1 , 1 )
     #plt.ylim ( -1 , 1 )
     plt.scatter ( x , y , c = "b" , s = 2 ) # rozpraszać
     plt.pause ( 0.001 )
     plt.show ()
-
 def plot_predictions ( train_data , train_labels , test_data , test_labels , predictions = None ) :
     # Plots training data, test data and compares predictions.
     plt.figure ( figsize = ( 10 , 7 ) )
@@ -61,16 +38,47 @@ bias = 1
 
 # Create train parameters:
 X_train = torch.tensor ( [ [0.1] , [0.2] , [0.3] ] )
+# X_train = torch.tensor ( [ 0.1 , 0.2 , 0.3 ] )
 # Create labels:
 y_train = weight * X_train + bias
 print ( f"X_train:\n{X_train}\ny_train:\n{y_train}")
 
 # Create test parameters:
 X_test = torch.tensor ( [ [0.6] , [0.7] , [0.8] ] )
+# X_test = torch.tensor ( [ 0.6 , 0.7 , 0.8 ] )
 # Create labels:
 y_test = weight * X_test + bias
 print ( f"X_test:\n{X_test[:5]}\ny_test:\n{y_test[:5]}")
 
+def test_model ( model , X_test ) :
+    with torch.inference_mode () :
+        y_preds = model ( X_test )
+    print ( f"y_test:\n{y_test[:5]}\ny_preds:\n{y_preds[:5]}")
+    return y_preds
+
+def train_model ( model , X_train ) :
+    get_model_parameters ( model , 'before train' )
+    loss_fn = nn.L1Loss () # May be also called Cost Function or Criterion in different areas.
+    optimizer = torch.optim.SGD ( params = model.parameters () , lr = 0.01 )
+    epochs = 10000
+    # Create empty loss lists to track values
+    train_loss_values = []
+    train_epochs = []
+    model.train ()
+    for epoch in range ( epochs ) :
+        # model.train ()
+        y_pred = model ( X_train ) # Forward pass on train data. To wywołuje metodę forward().
+        loss = loss_fn ( y_pred , y_train )
+        optimizer.zero_grad ()
+        loss.backward ()
+        optimizer.step ()
+        train_epochs.append ( epoch )
+        train_loss_values.append ( loss.detach () )
+        if epoch % ( round ( epochs / 10 ) ) == 0 :
+        # if epoch == epochs - 1 :
+            get_model_parameters ( model , ' after train' )
+    model.eval ()
+    plt_visualization ( train_epochs , train_loss_values )
 
 
 # Visualize
@@ -78,8 +86,8 @@ print ( f"X_test:\n{X_test[:5]}\ny_test:\n{y_test[:5]}")
 
 class LinearRegressionModel ( nn.Module ) :
 # A Linear Regression model class
-    def __init__(self):
-        super ().__init__() 
+    def __init__ ( self ) :
+        super ().__init__ () 
         self.weights = nn.Parameter ( torch.randn ( 1 , dtype = torch.float ) , requires_grad = True )
         self.bias = nn.Parameter ( torch.randn ( 1 , dtype = torch.float ) , requires_grad = True )
 
@@ -100,45 +108,5 @@ model_0 = LinearRegressionModel ()
 
 # Create the loss function
 train_model ( model_0 , X_train )
-# Create the optimizer
-# learning rate (how much the optimizer should change parameters at each step, higher=more (less stable), lower=less (might take a long time))
-# optimizer = torch.optim.SGD ( params = model_0.parameters () , lr = 0.01 ) 
-
-# The training loop (100 epochs) involves the model going through the training data and learning the relationships between the features and labels. The testing loop involves going through the testing data and evaluating how good the patterns are that the model learned on the training data (the model never see's the testing data during training).
-
-    
-    
-
-    ### Testing
-    # Put the model in evaluation mode
-    # model_0.eval ()
-
-    # print ( f"epoch: {epoch} , loss.detach().numpy (): {loss.detach ().numpy ()}" )
-    
-    #ax.plot ( train_epochs , train_loss_values , color = 'b' )
-    #time.sleep ( 0.1 )
-    #fig.canvas.draw ()
-
-    #with torch.inference_mode ():
-        # 1. Forward pass on test data
-    #    test_pred = model_0 ( X_test )
-
-        # 2. Caculate loss on test data
-    #    test_loss = loss_fn ( test_pred , y_test.type ( torch.float ) ) # predictions come in torch.float datatype, so comparisons need to be done with tensors of the same type
-
-        # Print out what's happening
-    #    print ( f"epoch: {epoch} , loss.detach(): {loss.detach()}" )
-    #    train_loss_values.append ( loss.detach ().numpy () )
-    #    train_epochs.append ( epoch )
-    #    ax.plot ( train_epochs , train_loss_values , color = 'b' )
-    #    time.sleep ( 0.1 )
-    #    fig.canvas.draw ()
-        # ax.set_xlim ( left = - 1 , right = 1 )
-
-        # if epoch % 10 == 0 :
-            # epoch_count.append(epoch)
-            # train_loss_values.append(loss.detach().numpy())
-            # test_loss_values.append(test_loss.detach().numpy())
-            # print(f"Epoch: {epoch} | MAE Train Loss: {loss} | MAE Test Loss: {test_loss} ")
-
-#plt.show ()
+y_pred = test_model  ( model_0 , X_test )
+plot_predictions ( X_train , y_test , X_test , y_test , y_pred )
