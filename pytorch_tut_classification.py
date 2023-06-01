@@ -14,11 +14,15 @@ import matplotlib.pyplot as plt
 model_saved_path = Path ( "saved_model/pytorch_tut_classification.pth" )
 
 n_samples = 1000
-
+def accuracy_fn ( y_true , y_pred ) :
+    correct = torch.eq ( y_true , y_pred ).sum ().item ()
+    acc = (correct / len ( y_pred ) ) * 100
+    return acc
 def print_5_in_out_examples ( x , y ) :
     print ( f"X:\n{x[:5]}\ny:\n{y[:5]}")
 class CircleModelV0 ( nn.Module ) :
 # Construct a model class that subclasses nn.Module
+# Jest lepsze niż nn.Sequential w przypadkach bardziej skomplikowanych struktur 
     def __init__ ( self ):
         super ().__init__ ()
         # Create 2 nn.Linear layers capable of handling X and y input and output shapes
@@ -30,9 +34,8 @@ class CircleModelV0 ( nn.Module ) :
         # Return the output of layer_2, a single feature, the same shape as y
         return self.layer_2(self.layer_1(x)) # computation goes through layer_1 first then the output of layer_1 goes through layer_2
 
-# 4. Create an instance of the model and send it to target device
+# Create an instance of the model and send it to target device
 model_0 = CircleModelV0 ().to ('cpu')
-
 
 X , y = make_circles ( n_samples , noise = 0.03 , random_state = 42 )
 plt.scatter ( x = X[ : , 0 ], y = X[ : , 1 ] , c = y, cmap = plt.cm.RdYlBu )
@@ -45,3 +48,23 @@ y = torch.from_numpy ( y ).type ( torch.float )
 # test_size: 20% test, 80% train
 # random_state: make the random split reproducible
 X_train , X_test , y_train , y_test = train_test_split ( X , y , test_size = 0.2 , random_state = 42 )
+
+# Replicate CircleModelV0 with nn.Sequential
+model_0 = nn.Sequential ( nn.Linear ( in_features = 2 , out_features = 5 ) , nn.Linear ( in_features = 5 , out_features = 1 ) )
+
+print ( model_0 )
+print ( model_0.state_dict () )
+
+
+loss_fn = nn.BCEWithLogitsLoss ()
+optimizer = torch.optim.SGD  ( params = model_0.parameters () , lr = 0.1 )
+
+model_0.eval ()
+with torch.inference_mode () :
+    y_logits = model_0 ( X_test )[ :5 ]
+print ( f"y_logits:\n{y_logits}" )
+print ( f"y_test:\n{y_test[ :5 ]}" )
+
+y_pred_probs = torch.sigmoid ( y_logits )
+
+print ( f"torch.round (y_pred_probs):\n{torch.round ( y_pred_probs[ :5 ] )}" )
