@@ -67,4 +67,13 @@ print ( f"y_test:\n{y_test[ :5 ]}" )
 
 y_pred_probs = torch.sigmoid ( y_logits )
 
-print ( f"torch.round (y_pred_probs):\n{torch.round ( y_pred_probs[ :5 ] )}" )
+# print ( f"torch.round (y_pred_probs):\n{torch.round ( y_pred_probs[ :5 ] )}" )
+
+# Find the predicted labels (round the prediction probabilities)
+y_preds = torch.round ( y_pred_probs )
+# In full
+y_pred_labels = torch.round ( torch.sigmoid ( model_0 ( X_test )[:5] ) )
+# Check for equality
+print ( torch.eq ( y_preds.squeeze () , y_pred_labels.squeeze () ) )
+# Get rid of extra dimension
+y_preds.squeeze()
