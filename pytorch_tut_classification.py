@@ -18,8 +18,7 @@ def accuracy_fn ( y_true , y_pred ) :
     correct = torch.eq ( y_true , y_pred ).sum ().item ()
     acc = (correct / len ( y_pred ) ) * 100
     return acc
-def print_5_in_out_examples ( x , y ) :
-    print ( f"X:\n{x[:5]}\ny:\n{y[:5]}")
+
 class CircleModelV0 ( nn.Module ) :
 # Construct a model class that subclasses nn.Module
 # Jest lepsze niż nn.Sequential w przypadkach bardziej skomplikowanych struktur 
@@ -35,7 +34,7 @@ class CircleModelV0 ( nn.Module ) :
         return self.layer_2(self.layer_1(x)) # computation goes through layer_1 first then the output of layer_1 goes through layer_2
 
 # Create an instance of the model and send it to target device
-model_0 = CircleModelV0 ().to ('cpu')
+model_0 = CircleModelV0 ()
 
 X , y = make_circles ( n_samples , noise = 0.03 , random_state = 42 )
 plt.scatter ( x = X[ : , 0 ], y = X[ : , 1 ] , c = y, cmap = plt.cm.RdYlBu )
@@ -43,7 +42,6 @@ plt.scatter ( x = X[ : , 0 ], y = X[ : , 1 ] , c = y, cmap = plt.cm.RdYlBu )
 
 X = torch.from_numpy ( X ).type ( torch.float )
 y = torch.from_numpy ( y ).type ( torch.float )
-# print_5_in_out_examples ( X , y )
 
 # test_size: 20% test, 80% train
 # random_state: make the random split reproducible
@@ -52,8 +50,8 @@ X_train , X_test , y_train , y_test = train_test_split ( X , y , test_size = 0.2
 # Replicate CircleModelV0 with nn.Sequential
 model_0 = nn.Sequential ( nn.Linear ( in_features = 2 , out_features = 5 ) , nn.Linear ( in_features = 5 , out_features = 1 ) )
 
-print ( model_0 )
-print ( model_0.state_dict () )
+print ( f"\n{model_0 = }" )
+print ( f"\n{model_0.state_dict () = }")
 
 
 loss_fn = nn.BCEWithLogitsLoss ()
@@ -62,8 +60,8 @@ optimizer = torch.optim.SGD  ( params = model_0.parameters () , lr = 0.1 )
 model_0.eval ()
 with torch.inference_mode () :
     y_logits = model_0 ( X_test )[ :5 ]
-print ( f"y_logits:\n{y_logits}" )
-print ( f"y_test:\n{y_test[ :5 ]}" )
+print ( f"\n{y_logits[ :5 ] = }" ) , print ( f"{y_logits.shape = }" )
+print ( f"\n{y_test[ :5 ] = }" ) , print ( f"{y_test.shape = }" )
 
 y_pred_probs = torch.sigmoid ( y_logits )
 
@@ -71,9 +69,12 @@ y_pred_probs = torch.sigmoid ( y_logits )
 
 # Find the predicted labels (round the prediction probabilities)
 y_preds = torch.round ( y_pred_probs )
+print (f"\n{y_preds = }") , print ( f"{y_preds.shape = }" )
 # In full
 y_pred_labels = torch.round ( torch.sigmoid ( model_0 ( X_test )[:5] ) )
+print (f"\n{y_pred_labels = }") , print ( f"{y_pred_labels.shape = }" )
 # Check for equality
 print ( torch.eq ( y_preds.squeeze () , y_pred_labels.squeeze () ) )
 # Get rid of extra dimension
 y_preds.squeeze()
+print (f"\nAfter y_preds.squeeze()\n{y_preds = }") , print (f"\nAfter y_preds.shape\n{y_preds.shape}")
