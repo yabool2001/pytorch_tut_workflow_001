@@ -13,9 +13,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 model_saved_path = Path ( "saved_model/pytorch_tut_classification_V3.pth" )
-train_epochs = 100000
+train_epochs = 2000000
 new_training = 0
-mode = 1 # 0: always train and test, 1: train if not saved and test, 2: newer train and always test
+mode = 0 # 0: always train and test, 1: train if not saved and test, 2: newer train and always test
 
 def plot_decision_boundary(model: torch.nn.Module, X: torch.Tensor, y: torch.Tensor):
     """Plots decision boundaries of model predicting on X in comparison to y.
