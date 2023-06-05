@@ -14,7 +14,7 @@ import numpy as np
 
 model_saved_path = Path ( "saved_model/pytorch_tut_classification_V3.pth" )
 train_epochs = 2500000
-new_training = 0
+new_training = 2
 mode = 0 # 0: always train and test, 1: train if not saved and test, 2: newer train and always test
 
 def plot_decision_boundary(model: torch.nn.Module, X: torch.Tensor, y: torch.Tensor):
