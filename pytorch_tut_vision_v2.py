@@ -179,6 +179,8 @@ plt.show ()
 # Create an instance of the model and send it to target device
 torch.manual_seed(42)
 model_2 = FashionMNISTModelV2 ( input_shape = 1 , hidden_units = 10 , output_shape = len ( train_data.classes ) )
+print ( f"\n{model_2 = }" )
+print ( f"\n{model_2.state_dict () = }")
 # print ( f"\n{model_3 = }" )
 # print ( f"\n{model_3.state_dict () = }")
 
