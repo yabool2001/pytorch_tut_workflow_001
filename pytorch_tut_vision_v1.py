@@ -10,10 +10,12 @@ import torch
 from torch import nn
 import matplotlib.pyplot as plt
 
-# Import torchvision 
+# Import torchvision
 import torchvision
 from torchvision import datasets
 from torchvision.transforms import ToTensor
+
+from torch.utils.data import DataLoader
 
 model_saved_path = Path ( "saved_model/pytorch_tut_classification_V4.pth" )
 new_training = 0
@@ -118,8 +120,26 @@ image , label = train_data [0]
 print ( f"\n{image = }" )
 print ( f"\n{image.shape = }")
 print ( f"\n{label = }" )
+print ( f"\n{train_data.classes = }")
 
+### Create DataLoader's for our training and test sets.
 
+# Setup the batch size hyperparameter
+BATCH_SIZE = 32
+# Turn datasets into iterables (batches)
+train_dataloader = DataLoader ( train_data , # dataset to turn into iterable
+    batch_size = BATCH_SIZE , # how many samples per batch? 
+    shuffle = True # shuffle data every epoch?
+)
+test_dataloader = DataLoader ( test_data ,
+    batch_size = BATCH_SIZE ,
+    shuffle = False # don't necessarily have to shuffle the testing data
+)
+
+# Let's check out what we've created
+print(f"Dataloaders: {train_dataloader, test_dataloader}") 
+print(f"Length of train dataloader: {len(train_dataloader)} batches of {BATCH_SIZE}")
+print(f"Length of test dataloader: {len(test_dataloader)} batches of {BATCH_SIZE}")
 
 # Create an instance of the model and send it to target device
 model_3 = CircleModelV3 ().to ( 'cpu' )
