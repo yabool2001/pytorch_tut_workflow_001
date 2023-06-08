@@ -1,8 +1,7 @@
-# 2023.05.29
-# Source: https://www.learnpytorch.io/02_pytorch_classification/
-# A classification problem involves predicting whether something is one thing or another.
-# pytorch_tut_workflow v2.1.py
-# Dependencies: saved_model/pytorch_tut_classification.pth
+# 2023.06.08
+# Source: https://www.learnpytorch.io/03_pytorch_computer_vision/
+# Computer vision is the art of teaching a computer to see.
+# Dependencies: saved_model/pytorch_tut_.pth
 
 from pathlib import Path
 from sklearn.datasets import make_circles
@@ -10,6 +9,11 @@ from sklearn.model_selection import train_test_split
 import torch
 from torch import nn
 import matplotlib.pyplot as plt
+
+# Import torchvision 
+import torchvision
+from torchvision import datasets
+from torchvision.transforms import ToTensor
 
 model_saved_path = Path ( "saved_model/pytorch_tut_classification_V4.pth" )
 new_training = 0
@@ -88,39 +92,37 @@ class CircleModelV3 ( nn.Module ) :
 # ### START APP
 # #############
 
-# Create the data
-X , y = make_circles ( n_samples = 1000 , noise = 0.03 , random_state = 42 )
-# Visualize the data
-# Na wykresie weź kolumnę 0 jako x, a kolumnę 1 jako y:
-# plt.scatter ( x = X[ : , 0 ], y = X[ : , 1 ] , c = y, cmap = plt.cm.RdBu )
-# plt.show ()
+# Check versions
+print ( f"PyTorch version: {torch.__version__}, torchvision version: {torchvision.__version__}" )
 
-X = torch.from_numpy ( X ).type ( torch.float )
-y = torch.from_numpy ( y ).type ( torch.float )
-print ( f"\n{X[ :5 ] = }" ) , print ( f"{X.shape = }" )
-print ( f"\n{y[ :5 ] = }" ) , print ( f"{y.shape = }" )
+# Setup training data
+train_data = datasets.FashionMNIST (
+    root = "" , # where to download data to?
+    train = True , # get training data
+    download = True , # download data if it doesn't exist on disk
+    transform = ToTensor() , # images come as PIL format, we want to turn into Torch tensors
+    target_transform = None # you can transform labels as well
+)
 
-# test_size: 20% test, 80% train
-# random_state: make the random split reproducible
-X_train , X_test , y_train , y_test = train_test_split ( X , y , test_size = 0.2 , random_state = 42 )
+# Setup testing data
+test_data = datasets.FashionMNIST (
+    root = "" ,
+    train = False , # get test data
+    download = True ,
+    transform = ToTensor()
+)
+
+# See first training sample
+print ( f"\n{train_data.data.shape = }")
+image , label = train_data [0]
+print ( f"\n{image = }" )
+print ( f"\n{image.shape = }")
+print ( f"\n{label = }" )
+
+
 
 # Create an instance of the model and send it to target device
 model_3 = CircleModelV3 ().to ( 'cpu' )
+# print ( f"\n{model_3 = }" )
+# print ( f"\n{model_3.state_dict () = }")
 
-print ( f"\n{model_3 = }" )
-print ( f"\n{model_3.state_dict () = }")
-
-
-loss_fn = nn.BCEWithLogitsLoss ()
-optimizer = torch.optim.SGD  ( params = model_3.parameters () , lr = 0.1 )
-
-if model_saved_path.is_file () :
-    model_3.load_state_dict ( torch.load ( f = model_saved_path ) ) # Załaduj istniejący model
-else :
-    train_model ( model_3 , X_train , loss_fn ) # Trenuj model, bo nie ma zapisanego
-    new_training = 1
-if new_training :
-    print (f"Saving model to: {model_saved_path}")
-    torch.save ( obj = model_3.state_dict () , f = model_saved_path )
-
-test_model ( model_3 , X_test , y_test , loss_fn ) # Trenuj model, bo nie ma zapisanego
